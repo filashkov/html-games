@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Snake Game</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px;
+    }
+    #score {
+      margin-bottom: 10px;
+      font-size: 24px;
+    }
+    /* Responsive board: fits browser screen using viewport units while keeping a matrix layout */
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(20, 1fr);
+      grid-template-rows: repeat(20, 1fr);
+      width: 80vmin;
+      height: 80vmin;
+      gap: 1px;
+      background-color: #ccc; /* tender grid background */
+    }
+    .cell {
+      background-color: #f7f7f7;
+      transition: background-color 0.15s ease-out;  /* smooth color changes */
+    }
+    .snake {
+      background-color: #4CAF50;
+    }
+    .food {
+      background-color: #e74c3c;
+    }
+  </style>
+</head>
+<body>
+  <div id="score">Score: 0</div>
+  <div id="game-board"></div>
+
+  <script>
+    // Game configuration
+    const boardSize = 20;
+    let startingSnakeLength = 5;  // initial snake length; decreases on death
+    let score = 0;
+    let baseSpeed = 200;          // starting update interval in ms
+    let currentSpeed = baseSpeed; // current game speed (interval)
+    let direction = { x: 0, y: 1 }; // initial direction: moving right
+
+    // Board elements
+    const board = document.getElementById('game-board');
+    const scoreDisplay = document.getElementById('score');
+    let matrix = [];
+
+    // Create the grid board (matrix)
+    function createBoard() {
+      board.innerHTML = "";
+      for (let i = 0; i < boardSize; i++) {
+        matrix[i] = [];
+        for (let j = 0; j < boardSize; j++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.setAttribute('data-x', i);
+          cell.setAttribute('data-y', j);
+          board.appendChild(cell);
+          matrix[i][j] = cell;
+        }
+      }
+    }
+    createBoard();
+
+    // Initialize snake in the center of the board with the current starting length
+    let snake = [];
+    function initSnake() {
+      snake = [];
+      const mid = Math.floor(boardSize / 2);
+      for (let i = startingSnakeLength - 1; i >= 0; i--) {
+        snake.push({ x: mid, y: mid - i });
+      }
+    }
+    initSnake();
+
+    // Place food at a random empty cell
+    let food = {};
+    function placeFood() {
+      let foodPlaced = false;
+      while (!foodPlaced) {
+        let x = Math.floor(Math.random() * boardSize);
+        let y = Math.floor(Math.random() * boardSize);
+        if (!snake.some(part => part.x === x && part.y === y)) {
+          food = { x, y };
+          foodPlaced = true;
+        }
+      }
+    }
+    placeFood();
+
+    // Update the board by clearing classes then marking snake and food cells
+    function updateBoard() {
+      for (let i = 0; i < boardSize; i++) {
+        for (let j = 0; j < boardSize; j++) {
+          matrix[i][j].classList.remove('snake');
+          matrix[i][j].classList.remove('food');
+        }
+      }
+      snake.forEach(part => {
+        matrix[part.x][part.y].classList.add('snake');
+      });
+      matrix[food.x][food.y].classList.add('food');
+    }
+    updateBoard();
+
+    // Main update loop
+    function update() {
+      const head = snake[snake.length - 1];
+      const newHead = { x: head.x + direction.x, y: head.y + direction.y };
+
+      // Check collision with borders
+      if (
+        newHead.x < 0 || newHead.x >= boardSize ||
+        newHead.y < 0 || newHead.y >= boardSize
+      ) {
+        gameOver();
+        return;
+      }
+
+      // Check self-collision: if new head intersects any part of snake
+      const collisionIndex = snake.findIndex(part => part.x === newHead.x && part.y === newHead.y);
+      if (collisionIndex !== -1) {
+        // Calculate segments lost and adjust score
+        const segmentsLost = snake.length - collisionIndex;
+        snake = snake.slice(0, collisionIndex);
+        score = Math.max(0, score - segmentsLost);
+        scoreDisplay.textContent = "Score: " + score;
+        // Add new head to the shortened snake
+        snake.push(newHead);
+        updateBoard();
+        return;  // Exit early; no further movement this update
+      }
+
+      // Check if food is eaten
+      if (newHead.x === food.x && newHead.y === food.y) {
+        snake.push(newHead); // Grow snake
+        score++;
+        scoreDisplay.textContent = "Score: " + score;
+        // Increase speed: decrease update interval by 5ms per point, down to 100ms minimum
+        currentSpeed = Math.max(100, baseSpeed - score * 5);
+        restartGameLoop();
+        placeFood();
+      } else {
+        // Normal movement: add new head and remove tail
+        snake.push(newHead);
+        snake.shift();
+      }
+      updateBoard();
+    }
+
+    let gameLoop = setInterval(update, currentSpeed);
+    function restartGameLoop() {
+      clearInterval(gameLoop);
+      gameLoop = setInterval(update, currentSpeed);
+    }
+
+    // When the snake hits a border, reset the game with a shorter starting snake
+    function gameOver() {
+      clearInterval(gameLoop);
+      alert("Game Over! Score: " + score);
+      // Decrease starting snake length (minimum 3)
+      startingSnakeLength = Math.max(3, startingSnakeLength - 1);
+      // Reset score and speed
+      score = 0;
+      scoreDisplay.textContent = "Score: " + score;
+      currentSpeed = baseSpeed;
+      // Reset direction to default (moving right)
+      direction = { x: 0, y: 1 };
+      initSnake();
+      placeFood();
+      updateBoard();
+      gameLoop = setInterval(update, currentSpeed);
+    }
+
+    // Change direction using WASD or arrow keys (with prevention for direct reverse)
+    function changeDirection(e) {
+      const key = e.key;
+      if (key === "ArrowUp" || key === "w" || key === "W") {
+        if (direction.x !== 1) direction = { x: -1, y: 0 };
+      } else if (key === "ArrowDown" || key === "s" || key === "S") {
+        if (direction.x !== -1) direction = { x: 1, y: 0 };
+      } else if (key === "ArrowLeft" || key === "a" || key === "A") {
+        if (direction.y !== 1) direction = { x: 0, y: -1 };
+      } else if (key === "ArrowRight" || key === "d" || key === "D") {
+        if (direction.y !== -1) direction = { x: 0, y: 1 };
+      }
+    }
+    document.addEventListener('keydown', changeDirection);
+  </script>
+</body>
+</html>
