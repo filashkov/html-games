@@ -208,11 +208,11 @@
     let swipeHandled = false;
     let swipeThreshold;
 
-    // Update the swipe threshold based on the current board cell size (2 cells)
+    // Update the swipe threshold based on the current board cell size (0.5 cells)
     function updateSwipeThreshold() {
       // board.clientWidth is the current width in pixels.
       // Each cell's width is board.clientWidth / boardSize.
-      swipeThreshold = (board.clientWidth / boardSize) * 2;
+      swipeThreshold = (board.clientWidth / boardSize) * 0.5;
     }
     updateSwipeThreshold();
     window.addEventListener('resize', updateSwipeThreshold);
