@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <title>Snake Game</title>
   <style>
+    /* Disable pull-to-refresh on supporting browsers */
+    html, body {
+      overscroll-behavior: none;
+    }
     body {
       font-family: sans-serif;
       display: flex;
@@ -201,7 +205,7 @@
     let touchendX = 0;
     let touchendY = 0;
 
-    // Prevent default touchmove behavior to block page update/refresh
+    // Prevent default touchmove behavior to block page update/refresh on supporting browsers
     document.addEventListener('touchmove', function(e) {
       e.preventDefault();
     }, { passive: false });
