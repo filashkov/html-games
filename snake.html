@@ -4,8 +4,10 @@
   <meta charset="UTF-8">
   <title>Snake Game</title>
   <style>
-    /* Disable pull-to-refresh on supporting browsers */
+    /* Ensure the full viewport is used and disable pull-to-refresh on supporting browsers */
     html, body {
+      height: 100%;
+      margin: 0;
       overscroll-behavior: none;
     }
     body {
@@ -13,26 +15,27 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin: 20px;
+      justify-content: center;  /* Centers content vertically */
+      gap: 20px;
       overflow: hidden; /* Prevent page scrolling */
+      background: #fafafa;
     }
     #score {
-      margin-bottom: 10px;
       font-size: 24px;
     }
-    /* Responsive board: fits browser screen using viewport units while keeping a matrix layout */
+    /* Responsive board: adapts to viewport size */
     #game-board {
       display: grid;
       grid-template-columns: repeat(20, 1fr);
       grid-template-rows: repeat(20, 1fr);
-      width: 80vmin;
+      width: 80vmin;   /* 80% of the smaller viewport dimension */
       height: 80vmin;
       gap: 1px;
-      background-color: #ccc; /* tender grid background */
+      background-color: #ccc; /* Tender grid background */
     }
     .cell {
       background-color: #f7f7f7;
-      transition: background-color 0.15s ease-out;  /* smooth color changes */
+      transition: background-color 0.15s ease-out;  /* Smooth color changes */
     }
     .snake {
       background-color: #4CAF50;
@@ -206,23 +209,18 @@
     const swipeThreshold = 30; // Minimum distance in pixels to register a swipe
 
     document.addEventListener('touchstart', function(event) {
-      // Reset at the start of each touch
       swipeHandled = false;
       touchstartX = event.changedTouches[0].screenX;
       touchstartY = event.changedTouches[0].screenY;
     }, { passive: false });
 
     document.addEventListener('touchmove', function(event) {
-      // Prevent default scrolling behavior
       event.preventDefault();
-      
       if (!swipeHandled) {
         const currentX = event.changedTouches[0].screenX;
         const currentY = event.changedTouches[0].screenY;
         const dx = currentX - touchstartX;
         const dy = currentY - touchstartY;
-        
-        // Only update if movement passes the threshold
         if (Math.abs(dx) >= swipeThreshold || Math.abs(dy) >= swipeThreshold) {
           if (Math.abs(dx) > Math.abs(dy)) {
             // Horizontal swipe
@@ -239,15 +237,15 @@
               direction = { x: -1, y: 0 };
             }
           }
-          swipeHandled = true; // Mark as handled for this gesture
+          swipeHandled = true;
         }
       }
     }, { passive: false });
 
     document.addEventListener('touchend', function(event) {
-      // Optionally, you could handle any remaining swipe logic here
+      // No additional action needed here.
     }, { passive: false });
-// --- End improved swipe support ---
+    // --- End improved swipe support ---
   </script>
 </body>
 </html>
