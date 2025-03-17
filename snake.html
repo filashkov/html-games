@@ -193,6 +193,57 @@
       }
     }
     document.addEventListener('keydown', changeDirection);
+
+    // --- Added swipe support for mobile devices ---
+    let touchstartX = 0;
+    let touchstartY = 0;
+    let touchendX = 0;
+    let touchendY = 0;
+
+    // Attach touch events to the document (or you could use board)
+    document.addEventListener('touchstart', function(event) {
+      touchstartX = event.changedTouches[0].screenX;
+      touchstartY = event.changedTouches[0].screenY;
+    }, false);
+
+    document.addEventListener('touchend', function(event) {
+      touchendX = event.changedTouches[0].screenX;
+      touchendY = event.changedTouches[0].screenY;
+      handleGesture();
+    }, false);
+
+    function handleGesture() {
+      const dx = touchendX - touchstartX;
+      const dy = touchendY - touchstartY;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // Horizontal swipe
+        if (dx > 0) {
+          // Swipe right: only change if not reversing from left
+          if (direction.y !== -1) {
+            direction = { x: 0, y: 1 };
+          }
+        } else {
+          // Swipe left: only change if not reversing from right
+          if (direction.y !== 1) {
+            direction = { x: 0, y: -1 };
+          }
+        }
+      } else {
+        // Vertical swipe
+        if (dy > 0) {
+          // Swipe down: only change if not reversing from up
+          if (direction.x !== -1) {
+            direction = { x: 1, y: 0 };
+          }
+        } else {
+          // Swipe up: only change if not reversing from down
+          if (direction.x !== 1) {
+            direction = { x: -1, y: 0 };
+          }
+        }
+      }
+    }
+    // --- End swipe support ---
   </script>
 </body>
 </html>
