@@ -202,11 +202,20 @@
     }
     document.addEventListener('keydown', changeDirection);
 
-    // --- Improved swipe support for immediate reaction ---
+    // --- Improved swipe support with dynamic threshold ---
     let touchstartX = 0;
     let touchstartY = 0;
     let swipeHandled = false;
-    const swipeThreshold = 30; // Minimum distance in pixels to register a swipe
+    let swipeThreshold;
+
+    // Update the swipe threshold based on the current board cell size (2 cells)
+    function updateSwipeThreshold() {
+      // board.clientWidth is the current width in pixels.
+      // Each cell's width is board.clientWidth / boardSize.
+      swipeThreshold = (board.clientWidth / boardSize) * 2;
+    }
+    updateSwipeThreshold();
+    window.addEventListener('resize', updateSwipeThreshold);
 
     document.addEventListener('touchstart', function(event) {
       swipeHandled = false;
@@ -243,7 +252,7 @@
     }, { passive: false });
 
     document.addEventListener('touchend', function(event) {
-      // No additional action needed here.
+      // No additional action needed on touchend.
     }, { passive: false });
     // --- End improved swipe support ---
   </script>
