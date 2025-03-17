@@ -190,14 +190,14 @@
 
     // Change direction using WASD or arrow keys (with prevention for direct reverse)
     function changeDirection(e) {
-      const key = e.key;
-      if (key === "ArrowUp" || key === "w" || key === "W") {
+      const code = e.code;
+      if (code === "ArrowUp" || code === "KeyW") {
         if (direction.x !== 1) direction = { x: -1, y: 0 };
-      } else if (key === "ArrowDown" || key === "s" || key === "S") {
+      } else if (code === "ArrowDown" || code === "KeyS") {
         if (direction.x !== -1) direction = { x: 1, y: 0 };
-      } else if (key === "ArrowLeft" || key === "a" || key === "A") {
+      } else if (code === "ArrowLeft" || code === "KeyA") {
         if (direction.y !== 1) direction = { x: 0, y: -1 };
-      } else if (key === "ArrowRight" || key === "d" || key === "D") {
+      } else if (code === "ArrowRight" || code === "KeyD") {
         if (direction.y !== -1) direction = { x: 0, y: 1 };
       }
     }
