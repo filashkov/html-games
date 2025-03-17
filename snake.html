@@ -10,6 +10,7 @@
       flex-direction: column;
       align-items: center;
       margin: 20px;
+      overflow: hidden; /* Prevent page scrolling */
     }
     #score {
       margin-bottom: 10px;
@@ -200,17 +201,22 @@
     let touchendX = 0;
     let touchendY = 0;
 
-    // Attach touch events to the document (or you could use board)
+    // Prevent default touchmove behavior to block page update/refresh
+    document.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+    }, { passive: false });
+
+    // Attach touch events to the document
     document.addEventListener('touchstart', function(event) {
       touchstartX = event.changedTouches[0].screenX;
       touchstartY = event.changedTouches[0].screenY;
-    }, false);
+    }, { passive: false });
 
     document.addEventListener('touchend', function(event) {
       touchendX = event.changedTouches[0].screenX;
       touchendY = event.changedTouches[0].screenY;
       handleGesture();
-    }, false);
+    }, { passive: false });
 
     function handleGesture() {
       const dx = touchendX - touchstartX;
