@@ -164,12 +164,9 @@
       gameLoop = setInterval(update, currentSpeed);
     }
 
-    // When the snake hits a border, reset the game with a shorter starting snake
     function gameOver() {
       clearInterval(gameLoop);
       alert("Game Over! Score: " + score);
-      // Decrease starting snake length (minimum 3)
-      startingSnakeLength = Math.max(3, startingSnakeLength - 1);
       // Reset score and speed
       score = 0;
       scoreDisplay.textContent = "Score: " + score;
