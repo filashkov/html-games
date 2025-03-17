@@ -199,61 +199,55 @@
     }
     document.addEventListener('keydown', changeDirection);
 
-    // --- Added swipe support for mobile devices ---
+    // --- Improved swipe support for immediate reaction ---
     let touchstartX = 0;
     let touchstartY = 0;
-    let touchendX = 0;
-    let touchendY = 0;
+    let swipeHandled = false;
+    const swipeThreshold = 30; // Minimum distance in pixels to register a swipe
 
-    // Prevent default touchmove behavior to block page update/refresh on supporting browsers
-    document.addEventListener('touchmove', function(e) {
-      e.preventDefault();
-    }, { passive: false });
-
-    // Attach touch events to the document
     document.addEventListener('touchstart', function(event) {
+      // Reset at the start of each touch
+      swipeHandled = false;
       touchstartX = event.changedTouches[0].screenX;
       touchstartY = event.changedTouches[0].screenY;
     }, { passive: false });
 
-    document.addEventListener('touchend', function(event) {
-      touchendX = event.changedTouches[0].screenX;
-      touchendY = event.changedTouches[0].screenY;
-      handleGesture();
-    }, { passive: false });
-
-    function handleGesture() {
-      const dx = touchendX - touchstartX;
-      const dy = touchendY - touchstartY;
-      if (Math.abs(dx) > Math.abs(dy)) {
-        // Horizontal swipe
-        if (dx > 0) {
-          // Swipe right: only change if not reversing from left
-          if (direction.y !== -1) {
-            direction = { x: 0, y: 1 };
+    document.addEventListener('touchmove', function(event) {
+      // Prevent default scrolling behavior
+      event.preventDefault();
+      
+      if (!swipeHandled) {
+        const currentX = event.changedTouches[0].screenX;
+        const currentY = event.changedTouches[0].screenY;
+        const dx = currentX - touchstartX;
+        const dy = currentY - touchstartY;
+        
+        // Only update if movement passes the threshold
+        if (Math.abs(dx) >= swipeThreshold || Math.abs(dy) >= swipeThreshold) {
+          if (Math.abs(dx) > Math.abs(dy)) {
+            // Horizontal swipe
+            if (dx > 0 && direction.y !== -1) {
+              direction = { x: 0, y: 1 };
+            } else if (dx < 0 && direction.y !== 1) {
+              direction = { x: 0, y: -1 };
+            }
+          } else {
+            // Vertical swipe
+            if (dy > 0 && direction.x !== -1) {
+              direction = { x: 1, y: 0 };
+            } else if (dy < 0 && direction.x !== 1) {
+              direction = { x: -1, y: 0 };
+            }
           }
-        } else {
-          // Swipe left: only change if not reversing from right
-          if (direction.y !== 1) {
-            direction = { x: 0, y: -1 };
-          }
-        }
-      } else {
-        // Vertical swipe
-        if (dy > 0) {
-          // Swipe down: only change if not reversing from up
-          if (direction.x !== -1) {
-            direction = { x: 1, y: 0 };
-          }
-        } else {
-          // Swipe up: only change if not reversing from down
-          if (direction.x !== 1) {
-            direction = { x: -1, y: 0 };
-          }
+          swipeHandled = true; // Mark as handled for this gesture
         }
       }
-    }
-    // --- End swipe support ---
+    }, { passive: false });
+
+    document.addEventListener('touchend', function(event) {
+      // Optionally, you could handle any remaining swipe logic here
+    }, { passive: false });
+// --- End improved swipe support ---
   </script>
 </body>
 </html>
